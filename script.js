@@ -11,31 +11,31 @@ function formatQueryParams(params) {
   return queryItems.join('&');
 }
 
-// function displayResults(responseJson) {
-//   // if there are previous results, remove them
-//   console.log(responseJson);
-//   $('#results-list').empty();
-//   // iterate through the items array
-//   for (let i = 0; i < responseJson.items.length; i++){
-//     // for each video object in the items 
-//     //array, add a list item to the results 
-//     //list with the video title, description,
-//     //and thumbnail
-//     $('#results-list').append(
-//       `<li><h3>${responseJson.items[i].snippet.title}</h3>
-//       <p>${responseJson.items[i].snippet.description}</p>
-//       <img src='${responseJson.items[i].snippet.thumbnails.default.url}'>
-//       </li>`
-//     )};
-//   //display the results section  
-//   $('#results').removeClass('hidden');
-// };
+function displayResults(responseJson) {
+  // if there are previous results, remove them
 
-function getParks(state, results=10) {
+  $('#results-list').empty();
+  // iterate through the data array
+
+  for (let i = 0; i < responseJson.data.length; i++){
+    
+    console.log(responseJson.data[i].fullName);
+    $('#results-list').append(
+      `<li><h3>${responseJson.data[i].fullName}</h3>
+      <p>${responseJson.data[i].description}</p>
+      <p><a href="${responseJson.data[i].url}">${responseJson.data[i].url}</a></p>
+      </li>`
+    )};
+  //display the results section  
+  $('#results').removeClass('hidden');
+}
+
+function getParks(state, results) {
   const params = {
     api_key: apiKey,
     stateCode: state,
-    limit: results
+    limit: results,
+    start: "0"
   };
   const queryString = formatQueryParams(params)
   const url = searchURL + '?' + queryString;
@@ -49,7 +49,7 @@ function getParks(state, results=10) {
       }
       throw new Error(response.statusText);
     })
-    .then(responseJson => console.log(responseJson))
+    .then(responseJson => displayResults(responseJson))
     .catch(err => {
       $('#js-error-message').text(`Something went wrong: ${err.message}`);
     });
@@ -58,11 +58,12 @@ function getParks(state, results=10) {
 function watchForm() {
   $('form').submit(event => {
     event.preventDefault();
-    const searchTerms = $('#js-state-options').val().join('&stateCode=');
+    $('#results-list').empty();
+    const stateCodes = $('#js-state-options').val().join('&stateCode=');
     const maxResults = $('#js-max-results').val();
-    console.log(searchTerms);
+    console.log(stateCodes);
     console.log(maxResults);
-    getParks(searchTerms, maxResults);
+    getParks(stateCodes, maxResults);
   });
 }
 
